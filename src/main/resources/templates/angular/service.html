@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>angular input bind</title>
+<script src="//cdn.bootcss.com/angular.js/1.5.6/angular.min.js"></script>
+<link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet"/>
+<style type="text/css">
+input.ng-invalid {
+	background-color: lightblue;
+}
+table, th , td {
+  border: 1px solid grey;
+  border-collapse: collapse;
+  padding: 5px;
+}
+table tr:nth-child(odd) {
+  background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+</style>
+<script type="text/javascript">
+	/*<![CDATA[*/
+	var app = angular.module('app', []);
+	app.filter('reverse', function() {
+		return function(text) {
+			return text.split("").reverse().join("");
+		}
+	});
+
+	//自定义服务
+	app.service('hexafy', function() {
+		this.myFunc = function(x) {
+			return x.toString(16);
+		}
+	});
+
+	//过滤器调用自定义服务-->hexafy 在调用的时候需要引入   (一定要注意匿名函数内部需要有service对象作为参数！！！！！！！！)
+	app.filter('myFormat', [ 'hexafy', function(hexafy) {
+		return function(x) {
+			return hexafy.myFunc(x);
+		}
+	} ]);
+
+	//controller 调用自定义服务-->hexafy 在调用的时候需要引入
+	app.controller('MainController', function($rootScope, $scope, $http,
+			$location, $timeout, $interval, hexafy) {
+		$scope.myUrl = $location.absUrl() + "url main";
+		$scope.myUrl2 = $location.absUrl() + " url main";
+		$scope.myHeader = "Hello World!";
+		$timeout(function() {
+			$scope.myHeader = "How are you today?";
+		}, 2000);
+		$http.get("angularGet").then(function(response) {
+			console.dir(response)
+			$scope.map = response.data;
+			$scope.myWelcom = response.data.key;
+		});
+
+		$scope.localTime = new Date().toLocaleTimeString();
+		$interval(function() {
+			$scope.localTime = new Date().toLocaleTimeString();
+		}, 1000);
+		//调用自定义的服务
+		$scope.hex = hexafy.myFunc(255);
+		$scope.num = 255;
+
+		//angular js xmlhttprequest
+		$http({
+			method : 'GET',
+			// 这个URL跨域了
+			//url:'https://www.runoob.com/try/angularjs/data/sites.php'
+			url : 'ajax'
+		}).then(function successCallback(response) {
+			//执行成功代码
+			console.dir(response.data.sites)
+			$scope.sites = response.data.sites;
+			//由于无法控制同步异步， 所以需要将selectSite放到这个地方初始化（默认下列表的值）
+			$scope.selectedSite = $scope.sites[0];
+
+		}, function errorCallback(response) {
+			//执行错误的回调函数
+			alert("error happend...")
+		});
+		//$http
+		//$http.get('/someUrl', config).then(successCallback, errorCallback);
+		//$http.post('/someUrl', data, config).then(successCallback, errorCallback);
+		
+		//=====================select
+		$scope.names = ["Google", "Runoob", "Taobao"];
+		
+		//=====================form
+		$scope.userObj={
+				firstName :"java",
+				lastName : "script"
+		}
+		
+		$scope.reset = function(){
+			$scope.userObj={
+					firstName :"",
+					lastName : ""
+			}
+		}
+		
+		$scope.user='java';
+		$scope.email='123@abc.com';
+		
+
+	});
+
+	//controller 里面的scope 是有范围的
+	app.controller('ctrl1', function($rootScope, $scope, $http, $location) {
+		$scope.myUrl = $location.absUrl() + "url 1";
+		$scope.myUrl2 = $location.absUrl() + " url 1";
+	});
+	app.controller('ctrl2', function($rootScope, $scope, $http, $location) {
+		$scope.myUrl = $location.absUrl() + "url 2";
+		$scope.myUrl2 = $location.absUrl() + " url 2";
+	});
+	/*]]>*/
+</script>
+</head>
+<body ng-app="app" ng-controller="MainController">
+	<p>=============main part start=============</p>
+	<div>
+		<p style="color: red;">$location</p>
+		<div>{{myUrl}}</div>
+		<div>{{myUrl2}}</div>
+
+		<p style="color: red;">迭代map</p>
+		<div>{{myWelcom}}</div>
+
+		<ul>
+			<li ng-repeat="(k,v) in map">{{k}}-{{v}}</li>
+		</ul>
+
+		<p style="color: red;">$timeout</p>
+		<div>{{myHeader}}</div>
+
+		<p style="color: red;">$interval</p>
+		<div>{{localTime}}</div>
+
+		<p style="color: red;">自定义服务调用</p>
+		<div>255 -> 16 进制 {{hex}}</div>
+
+		<p style="color: red;">自定义过滤器调用自定义的服务</p>
+		<div>255 -> 16 进制 {{num|myFormat}}</div>
+
+
+		<p style="color: red;">xmlhttpRequest</p>
+		<div>
+			<ul>
+				<li ng-repeat="site in sites">{{site.name}} - {{site.url}} -
+					{{site.country}}</li>
+			</ul>
+		</div>
+		
+		<p style="color: red;">angular select</p>
+		<div>
+			<select ng-init="selectedName=names[0]" ng-model="selectedName" ng-options="x for x in names"></select>
+			
+			<select  ng-model="selectedSite" ng-options="site.name for site in sites"></select>
+			
+			<select>
+				<option ng-repeat="x in names">{{x}}</option>
+			</select>
+			
+			<p>选择的Url:{{selectedSite.url}}</p>
+			<p>选择的Country:{{selectedSite.country}}</p>
+		</div>
+		
+		<p style="color: red;">angular table</p>
+		<table class="table table-bordered table-hover" style="width:60%;text-align: center;">
+			<tr >
+				<th style="text-align: center;">Line</th>
+				<th style="text-align: center;">Name</th>
+				<th style="text-align: center;">Url</th>
+				<th style="text-align: center;">Country</th>
+			</tr>
+			<tr ng-repeat="site in sites">
+				<td>{{$index + 1}}</td>
+				<td>{{site.name}}</td>
+				<td>{{site.url}}</td>
+				<td>{{site.country}}</td>
+			</tr>
+		</table>
+		
+		<table>
+		    <tr style="{{$even?'background-color: #f1f1f1':''}}" ng-repeat="x in sites">
+		        <td>{{ $index + 1 }}</td>
+		        <td>{{ x.name }}</td>
+		        <td>{{ x.url }}</td>
+		        <td>{{ x.country }}</td>
+		    </tr>
+		</table>
+		<p style="color: red;">angular form</p>
+		<form novalidate="novalidate">
+		    First Name: <input type="text" ng-model="userObj.firstName"/><br/>
+		    Last Name: <input type="text" ng-model="userObj.lastName"/><br/><br>
+		    <button ng-click="reset()">RESET</button>
+		 </form>
+		 
+		 <form  name="myForm" novalidate>
+
+			<p>用户名:<br>
+			  <input type="text" name="user" ng-model="user" required>
+			  <span style="color:red" ng-show="myForm.user.$dirty && myForm.user.$invalid">
+			  <span ng-show="myForm.user.$error.required">用户名是必须的。</span>
+			  </span>
+			</p>
+			
+			<p>邮箱:<br>
+			  <input type="email" name="email" ng-model="email" required>
+			  <span style="color:red" ng-show="myForm.email.$dirty && myForm.email.$invalid">
+			  <span ng-show="myForm.email.$error.required">邮箱是必须的。</span>
+			  <span ng-show="myForm.email.$error.email">非法的邮箱。</span>
+			  </span>
+			</p>
+			
+			<p>
+			  <input type="submit"
+			  ng-disabled="myForm.user.$dirty && myForm.user.$invalid ||
+			  myForm.email.$dirty && myForm.email.$invalid">
+			</p>
+		
+		</form>
+	</div>
+	<p>=============main part over=============</p>
+	<div ng-controller="ctrl1">
+		<p>$location</p>
+		<div>{{myUrl}}</div>
+		<div>{{myUrl2}}</div>
+	</div>
+	<div ng-controller="ctrl2">
+		<p>$location</p>
+		<div>{{myUrl}}</div>
+		<div>{{myUrl2}}</div>
+	</div>
+</body>
+</html>

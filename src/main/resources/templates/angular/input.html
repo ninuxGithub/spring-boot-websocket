@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>angular input bind</title>
+<script src="//cdn.bootcss.com/angular.js/1.5.6/angular.min.js"></script>
+<style type="text/css">
+input.ng-invalid {
+	background-color: lightblue;
+}
+</style>
+<script type="text/javascript">
+	/*<![CDATA[*/
+
+	var stompClient = null;
+
+	var app = angular.module('app', []);
+	app.filter('reverse',function(){
+		return function(text){
+			return text.split("").reverse().join("");
+		}
+	});
+	app.directive("helloDirective", function(){
+		return {
+			restrict:"EACM",
+			template: "<h2 style='color:red;'>hello directive 自定义的指令</h2>"
+		};
+	}).directive('first',[function(){
+		return {
+			restrict:'AE',
+			template:'first name:{{name}}'
+		};
+	}]).directive('second',[function(){
+		return {
+			scope: {},
+			controller:function($scope){
+				$scope.name='second...'
+			},
+			restrict:'AE',
+			template:'second name:{{name}}'
+		};
+	}]).controller('MainController', function($rootScope, $scope, $http) {
+		$scope.name="main name";
+		$scope.test='';
+		$scope.data = {
+			//消息
+			message : 'I am Angular Js',
+			address : 'SH',
+			points: [1,2,3],
+			quantity: 0.00,
+			price:10.0,
+			names:[{name:'Jani',country:'Norway'},
+				{name:'Hege',country:'Sweden'},
+				{name:'China',country:'中国'},
+				{name:'American',country:'美国'},
+				{name:'Japan',country:'日本'},
+				{name:'Kai',country:'Denmark'}],
+			email:'123@sina.com'
+		};
+		$scope.sayHello = function(){
+			$scope.name = "has click me"
+		};
+	});
+	/*]]>*/
+</script>
+</head>
+<body ng-app="app" ng-controller="MainController">
+	<p>
+		名字 : <input type="text" ng-model="data.message" /><br/> 
+		地址： <input type="text" ng-model="data.address" />
+	</p>
+	<p>
+		名字 : <input type="text" ng-model="data.quantity" /><br/> 
+		地址： <input type="text" ng-model="data.price" /><br/>
+		<h4>result:{{data.quantity * data.price | currency}}</h4>
+	</p>
+	
+	
+	<h1>bind input :Hello {{data.message}}</h1>
+	
+	<h1>第三个点：{{data.points[2]}}</h1>
+	
+	
+	<p>循环对象(加入过滤)</p>
+	<p>根据输入内容过滤:<input type="text" ng-model="test"/></p>
+	<ul>
+		<li ng-repeat="n in data.names | filter:test | orderBy:'country'">
+			{{(n.name | uppercase)+' ~ '+ n.country}}
+		</li>
+	</ul>
+	
+	<p>自定义的指令:使用驼峰法来命名一个指令， helloDirective, 但在使用它时需要以 - 分割, hello-directive:</p>
+	<p>
+		restrict 值可以是以下几种:<br/>
+		E 作为元素名使用<br/>
+		A 作为属性使用<br/>
+		C 作为类名使用<br/>
+		M 作为注释使用<br/>
+		restrict 默认值为 EA, 即可以通过元素名和属性名来调用指令。<br/>
+	</p>
+	<hello-directive></hello-directive>
+	姓名: <input type="text" ng-model="name"/> <br/>
+	<first></first>
+	<second></second>
+<!-- 	<div hello-directive></div> -->
+
+	<p>验证用户输入</p>
+	<form name="myForm">
+    Email:
+    <input type="email" name="myAddress" ng-model="data.email" required="required"/>
+    <span ng-show="myForm.myAddress.$error.email">不是一个合法的邮箱地址</span>
+    <h1 style="color:red;">状态</h1>
+    <p>valid:{{myForm.myAddress.$valid}} (如果输入的值是合法的则为true)</p>
+    <p>Dirty:{{myForm.myAddress.$dirty}} (如果只改变则为true)</p>
+    <p>Touched:{{myForm.myAddress.$touched}} (如果通过触屏点击则为true)</p>
+    
+    
+    <h1>scope</h1>
+    <button ng-click='sayHello()'>点击我</button>
+    
+    <h1>过滤器</h1>
+   	 姓名: {{name}}, {{name|uppercase}} <br/>
+   	自定义的filter: {{name | reverse}}
+</form>
+	
+</body>
+</html>

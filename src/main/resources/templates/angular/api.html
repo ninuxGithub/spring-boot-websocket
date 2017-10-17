@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>angular input bind</title>
+<script src="//cdn.bootcss.com/angular.js/1.5.6/angular.min.js"></script>
+<link
+	href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+	rel="stylesheet" />
+<style type="text/css">
+input.ng-invalid {
+	background-color: lightblue;
+}
+
+table, th, td {
+	border: 1px solid grey;
+	border-collapse: collapse;
+	padding: 5px;
+}
+
+table tr:nth-child(odd) {
+	background-color: #f1f1f1;
+}
+
+table tr:nth-child(even) {
+	background-color: #ffffff;
+}
+
+</style>
+<script type="text/javascript">
+	/*<![CDATA[*/
+	var app = angular.module('app', ['ngAnimate']);
+
+	app.controller('MainController', function($rootScope, $scope, $http,
+			$location, $timeout, $interval) {
+
+		$scope.x1 = "JSON";
+		$scope.x2 = angular.lowercase($scope.x1);
+		$scope.x2 = angular.isNumber($scope.x1);
+		console.dir(angular)
+		
+		
+		$scope.fName = '';
+		$scope.lName = '';
+		$scope.passw1 = '';
+		$scope.passw2 = '';
+		$scope.users = [
+		{id:1, fName:'Hege',lName:"Pege" },
+		{id:2, fName:'Kim',lName:"Pim" },
+		{id:3, fName:'Sal',lName:"Smith" },
+		{id:4, fName:'Jack',lName:"Jones" },
+		{id:5, fName:'John',lName:"Doe" },
+		{id:6, fName:'Peter',lName:"Pan" }
+		];
+		$scope.edit = true;
+		$scope.error = false;
+		$scope.incomplete = false; 
+		$scope.editUser = function(id) {
+		  if (id == 'new') {
+		    $scope.edit = true;
+		    $scope.incomplete = true;
+		    $scope.fName = '';
+		    $scope.lName = '';
+		    } else {
+		    $scope.edit = false;
+		    $scope.fName = $scope.users[id-1].fName;
+		    $scope.lName = $scope.users[id-1].lName; 
+		  }
+		};
+
+		$scope.$watch('passw1',function() {$scope.test();});
+		$scope.$watch('passw2',function() {$scope.test();});
+		$scope.$watch('fName',function() {$scope.test();});
+		$scope.$watch('lName',function() {$scope.test();});
+
+		$scope.test = function() {
+		  if ($scope.passw1 !== $scope.passw2) {
+		    $scope.error = true;
+		    } else {
+		    $scope.error = false;
+		  }
+		  $scope.incomplete = false;
+		  if ($scope.edit && (!$scope.fName.length ||
+		    !$scope.lName.length ||
+		    !$scope.passw1.length || !$scope.passw2.length)) {
+		    $scope.incomplete = true;
+		  }
+		};
+
+	});
+
+	/*]]>*/
+</script>
+</head>
+<body ng-app="app" ng-controller="MainController">
+	<div>x1:{{x1}}</div>
+	<div>x2:{{x2}}</div>
+
+	<div class="container">
+		<h3>Users</h3>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Edit</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="user in users">
+					<td>
+						<button class="btn" ng-click="editUser(user.id)">
+							<span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;Edit
+						</button>
+					</td>
+					<td>{{ user.fName }}</td>
+					<td>{{ user.lName }}</td>
+				</tr>
+			</tbody>
+		</table>
+		<hr>
+		<button class="btn btn-success" ng-click="editUser('new')">
+			<span class="glyphicon glyphicon-user"></span> Create New User
+		</button>
+		<hr>
+
+		<h3 ng-show="edit">Create New User:</h3>
+		<h3 ng-hide="edit">Edit User:</h3>
+
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">First Name:</label>
+				<div class="col-sm-10">
+					<input type="text" ng-model="fName" ng-disabled="!edit"
+						placeholder="First Name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Last Name:</label>
+				<div class="col-sm-10">
+					<input type="text" ng-model="lName" ng-disabled="!edit"
+						placeholder="Last Name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Password:</label>
+				<div class="col-sm-10">
+					<input type="password" ng-model="passw1" placeholder="Password">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Repeat:</label>
+				<div class="col-sm-10">
+					<input type="password" ng-model="passw2"
+						placeholder="Repeat Password">
+				</div>
+			</div>
+		</form>
+
+		<hr>
+		<button class="btn btn-success" ng-disabled="error || incomplete">
+			<span class="glyphicon glyphicon-save"></span> Save Changes
+		</button>
+	</div>
+	
+</body>
+</html>
