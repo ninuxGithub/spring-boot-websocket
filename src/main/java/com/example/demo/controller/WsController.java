@@ -15,4 +15,5 @@ public class WsController {
 		System.out.println(message.getName());
 		return new ResponseMessage("welcome," + message.getName() + " !");
 	}
+	
 }

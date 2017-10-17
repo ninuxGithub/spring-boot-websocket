@@ -33,6 +33,11 @@ public class SpringBootWebsoketApplication {
 	public String index() {
 		return "index";
 	}
+	
+	@RequestMapping("/scrollLoading")
+	public String scrollLoading() {
+		return "scrollLoading";
+	}
 
 	@MessageMapping("/send")
 	@SendTo("/topic/send")
